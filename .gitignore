@@ -1,0 +1,6 @@
+.idea
+
+/project/*.o
+/project/*.dSYM
+/project/server
+/project/client
