@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
   char* type_png = "Content-Type: image/png\r\n";
   char* type_binary = "Content-Type: application/octet-stream\r\n";
 
-  char* closing = "Connection: close\r\n";
+  char* closing = "Connection: close\r\n\r\n";
 
   while(1) {
 
@@ -111,33 +111,34 @@ int main(int argc, char *argv[])
 
     int index = check_request(n, filelist, filename);
 
-    char *response_buffer;
+    char *header_buffer;
+    char *file_buffer;
 
     //404 Reply
     if (index == -1) {
 
       printf("Failed to match request for %s\n\n", filename);
 
-      response_buffer = malloc(128);
+      header_buffer = malloc(128);
       char *tracker;
 
-      strncpy(response_buffer, response_not_found, strlen(response_not_found));
-      tracker = response_buffer + strlen(response_not_found);
+      strncpy(header_buffer, response_not_found, strlen(response_not_found));
+      tracker = header_buffer + strlen(response_not_found);
 
       strncpy(tracker, type_txt, strlen(type_txt));
-      tracker = tracker + strlen(type_txt);
+      tracker += strlen(type_txt);
 
       char line3[27];
       sprintf(line3, "Content-Length: %d\r\n", 0);
 
       strncpy(tracker, line3, strlen(line3));
-      tracker = tracker + strlen(line3);
+      tracker += strlen(line3);
 
       strncpy(tracker, closing, strlen(closing));
-      tracker = tracker + strlen(closing);
+      tracker += strlen(closing);
 
       tracker[0] = 0;
-      send(new_sock, response_buffer, strlen(response_buffer), 0);
+      write(new_sock, header_buffer, strlen(header_buffer));
 
     } 
 
@@ -145,6 +146,7 @@ int main(int argc, char *argv[])
     else {
 
       printf("Matched request for %s!\n\n", filename);
+
 
       FILE *f;
       f = fopen(filelist[index]->d_name, "rb");
@@ -156,36 +158,46 @@ int main(int argc, char *argv[])
       }
       rewind(f);
 
-      response_buffer = malloc(fsize + 128);
+
+      header_buffer = malloc(128);
       char *tracker;
 
-      strncpy(response_buffer, response_ok, strlen(response_ok));
-      tracker = response_buffer + strlen(response_ok);
+      strncpy(header_buffer, response_ok, strlen(response_ok));
+      tracker = header_buffer + strlen(response_ok);
 
       strncpy(tracker, type_jpeg, strlen(type_jpeg));
-      tracker = tracker + strlen(type_jpeg);
+      tracker += strlen(type_jpeg);
 
       char line3[27];
       sprintf(line3, "Content-Length: %ld\r\n", fsize);
 
       strncpy(tracker, line3, strlen(line3));
-      tracker = tracker + strlen(line3);
+      tracker += strlen(line3);
 
       strncpy(tracker, closing, strlen(closing));
-      tracker = tracker + strlen(closing);
+      tracker += strlen(closing);
 
-      fread(tracker, fsize, 1, f);
+      write(new_sock, header_buffer, (tracker - header_buffer));
+
+
+      file_buffer = malloc(fsize);
+
+      fread(file_buffer, fsize, 1, f);
       fclose(f);
-      tracker[fsize] = 0;
 
-      write(new_sock, response_buffer, fsize);
-      printf("%ld ", strlen(response_buffer));
-      printf("%ld\n\n", fsize);
+      long total_transmitted = 0;
+      while(total_transmitted < fsize) {
+        total_transmitted += write(new_sock, file_buffer, fsize);
+      }
+
+      // printf("%ld ", total_transmitted);
+      // printf("%ld\n\n", fsize);
     }
 
     //Remember to set them free
     free(filename);
-    free(response_buffer);
+    free(header_buffer);
+    free(file_buffer);
     close(new_sock);
   }
 }
