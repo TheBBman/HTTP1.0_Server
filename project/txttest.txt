@@ -1,0 +1,228 @@
+.status-menu-container{
+  background-color: rgba(0,0,0,.7) !important;
+}
+
+
+/* CATEGORY HEADER BACKGROUND COLOR */
+.list-unit .list-status-title {
+  background-color: rgba(225,135,0);
+}
+
+
+/* BACKGROUND AND BORDER COLOR OF LIST 
+*/
+.list-block, .cover-block{
+  background-color: rgba(0,0,0,.7) !important;
+}
+
+/*BACKGROUND COLOR OF ROWS ON HOVER 
+*/
+tbody[class*="list-item"]:hover,
+.list-table tbody:nth-of-type(2n+1):hover {
+  background-color: rgba(0,0,0,0) !important;}
+
+
+/*BACKGROUND COLOR OF SIDE MENU */
+.list-menu-float .icon-menu {
+background: rgba(0,0,0);
+}
+
+/*BACKGROUND COLOR OF SIDE MENU WHEN OPENED*/
+.list-menu-float .icon-menu:not(.profile):hover,
+.list-menu-float .icon-menu.setting:hover .text .link-list-setting, .list-menu-float .icon-menu.setting:hover .text .link-style-setting
+{
+background: rgba(50,50,50);
+}
+
+/*BORDER COLOR OF SIDE MENU */
+.list-menu-float{
+border: #EBEBEB 0px solid;
+}
+
+/*FOOTER COLOR */
+#footer-block {
+    background-color: rgba(0,0,0,0);
+}
+
+.list-table .more-info .more-content a {
+    color: orange;
+}
+
+.list-table .more-info .more-content {
+  color: white;
+}
+
+.list-menu-float .icon-menu:hover svg.icon {
+    position: absolute;
+    fill: orange;
+}
+
+/*Drop down stats box color*/
+.list-unit .list-stats {
+    display: none;
+    background-color: orange;
+    width: 1024px;
+    height: 30px;
+    line-height: 30px;
+    color: #444;
+    text-align: center;
+}
+
+.status-menu-container .status-menu .status-button:after {
+  background-color: orange;
+}
+
+/*Question mark color*/
+.status-menu-container .search-container #search-button {
+    display: inline-block;
+    height: 22px;
+    color: white;
+    margin-top: 15px;
+    font-size: 1.6em;
+    vertical-align: middle;
+}
+
+/*FONT COLORS
+Change the colors to what you want. 
+Put the color you want for fonts after 
+color: 
+for each code below.*/
+
+
+.list-table .list-table-data .data.status.reading, .list-table .list-table-data .data.status.watching {
+    background-color: rgba(226, 224, 63);
+}
+
+.list-table .list-table-data .data.status.plantoread, .list-table .list-table-data .data.status.plantowatch {
+    background-color: gray;
+}
+
+.list-table .list-table-data .data.status.onhold {
+    background-color: rgb(255,50,110);
+}
+
+
+.list-table .list-table-data .data.status.completed {
+    
+    background-color: rgba(226, 111, 215);
+}
+
+/* HEADER TEXT COLORS*/
+.header .header-menu *,#header-menu-button,.header .header-menu a{
+	color: rgba(255,255,255);
+}
+
+.header .header-menu .btn-menu {
+    display: block;
+    color: white;
+    text-align: right;
+    font-size: 16px;
+}
+
+/* CATEGORY BUTTON LINK COLORS*/
+.status-menu-container .status-menu .status-button,
+.status-menu-container .status-menu .status-button.on{
+  color: rgba(226, 111, 215);
+}
+
+/* STATS FILTER COLORS*/
+.list-unit .list-status-title .stats *,
+.list-unit .list-status-title .stats a{
+color: rgba(0,0,0);
+}
+
+
+/* ANIME STAT COLORS*/
+.list-unit .list-stats{
+color: black;  
+font-family: ;
+}
+
+/* CATEGORY HEADER FONT */
+.list-unit .list-status-title .text {
+  color: rgba(50,50,50);
+  font-family: ;
+}
+
+
+/* COLLUMN HEADER COLORS */
+.list-table .list-table-header .header-title,
+.list-table .list-table-header .header-title .link.sort,
+.list-table .list-table-header .header-title.image a{
+color: rgba(226, 111, 215);
+font-family: ;
+}
+
+/* LIST LINK FONT */    
+.list-table .list-table-data .data a{
+color: rgba(230,230,230) !important;
+font-family: ;
+}
+
+/* LIST NON-LINK FONT */    
+.list-table .list-table-data .data{
+color: white;
+font-family: ;
+}
+
+
+/* TAGS EDIT FONT */     
+.list-table .list-table-data .tags .edit{
+color: pink !important;
+font-family: ;
+}
+
+
+/* SIDE MENU ICONS */
+.list-menu-float .icon-menu svg.icon{
+	fill: rgba(255,255,255);
+}
+/* SIDE MENU ICONS AND TEXT WHEN OPENED*/
+.list-menu-float .icon-menu svg.icon:hover{
+	fill: orange  !Important;
+}
+
+
+/* FOOTER FONT COLORS */   
+#footer-block *,
+#footer-block a{
+  color: rgba(0,0,0,0);
+  font-family: ;
+}
+
+
+/* LINK COLOR ON HOVER
+Make sure your color is followed by a space and !important
+*/  
+a:hover,
+.list-table .list-table-data .data a:hover{
+color: orange !important;   
+}
+
+/*Tag color on hover */
+.list-table .list-table-data .tags .edit:hover {
+    color: orange !important;
+}
+
+
+/* OTHER CODES*/ 
+
+body{
+background-size: cover !important;
+background-attachment: fixed !important;
+}
+
+.cover-block {
+padding-left: 17px;
+padding-right: 17px;
+}
+
+.list-table > tbody:nth-of-type(2n+1),
+.list-table, .list-container,  
+.list-table .list-table-header .header-title{
+  background-color: transparent !important;
+     border: 0 transparent solid !important;
+}
+.list-table .list-table-data .data{
+  border: 0 transparent solid !important;
+}

@@ -11,46 +11,43 @@
 #include <errno.h>
 #include <dirent.h>
 
-// Extract IP address from sockaddr struct
-// void *get_in_addr(struct sockaddr *sa) {
-//   return &(((struct sockaddr_in*)sa)->sin_addr);
-// }
-
 // Extract only the requested pathname from HTTP GET
 char* parse_request(const char* request) {
-  const char *path_start = strchr(request, ' ') + 1;
+  const char *path_start = strchr(request, ' ') + 2;
   const char *path_end = strchr(path_start, ' ');
 
   int path_size = (path_end - path_start);
 
-  char *path = malloc(path_size * sizeof(char));
-
+  char *path = malloc(path_size + 1);
   strncpy(path, path_start, path_size);
-
   path[path_size] = 0;
-
   return path;
 }
 
 // Return a lower case version of given string
 char* lowercase_string(const char* str) {
-  char *result = malloc(sizeof(str));
-  for (int i = 0; str[i]; i++) {
+  char *result = malloc(strlen(str) + 1);
+  for (int i = 0; i < strlen(str); i++) {
     result[i] = tolower(str[i]);
   }
   result[strlen(str)] = 0;
+
   return result;
 }
 
 // Check if requested pathname is in current directory
 int check_request(int n, struct dirent **filelist, char* request) {
-  char* request_lower = lowercase_string(request) + 1;
+  char* request_lower = lowercase_string(request);
   for (int i = 0; i < n; i++) {
     char* name_lower = lowercase_string(filelist[i]->d_name);
     if (strcmp(request_lower, name_lower) == 0) {
+      free(name_lower);
+      free(request_lower);
       return i;
     }
+    free(name_lower);
   }
+  free(request_lower);
   return -1;
 }
 
@@ -79,16 +76,21 @@ int main(int argc, char *argv[])
   listen(my_sock, 1);
     
 
-  //Get a list of all names in current directory
+  // Get a list of all names in current directory
   struct dirent **filelist;
   int n = scandir(".", &filelist, NULL, alphasort);
 
-  // for (int i = 0; i < n; i++) {
-  //   printf("%s\n", lowercase_string(filelist[i]->d_name));
-  //   printf("%s\n", filelist[i]->d_name);
-  //   free(filelist[i]);
-  // }
-  // free(filelist);
+  // Pre-formatted response lines
+  char* response_ok = "HTTP/1.0 200 OK\r\n";
+  char* response_not_found = "HTTP/1.0 404 Not Found\r\n";
+
+  char* type_html = "Content-Type: text/html\r\n";
+  char* type_txt = "Contet-Type: text/plain\r\n";
+  char* type_jpeg = "Content-Type: image/jpeg\r\n";
+  char* type_png = "Content-Type: image/png\r\n";
+  char* type_binary = "Content-Type: application/octet-stream\r\n";
+
+  char* closing = "Connection: close\r\n";
 
   while(1) {
 
@@ -101,25 +103,85 @@ int main(int argc, char *argv[])
       continue;
     }
 
-    // char address[INET_ADDRSTRLEN];
-    // inet_ntop(client_addr.ss_family, get_in_addr((struct sockaddr *)&client_addr), address, sizeof(address));
-    // printf("Got connection from %s\n", address);
-
     char buf[128];
-    int bytes_received = recv(new_sock, buf, sizeof(buf), 0);
-    // printf("%d bytes received!\n\n", bytes_received);
-    // printf("%s\n\n", buf);
+    recv(new_sock, buf, sizeof(buf), 0);
 
     char *filename = parse_request(buf);
     printf("Received request for %s\n\n", filename);
 
-    if (check_request(n, filelist, filename) != -1) {
+    int index = check_request(n, filelist, filename);
+
+    char *response_buffer;
+
+    //404 Reply
+    if (index == -1) {
+
+      printf("Failed to match request for %s\n\n", filename);
+
+      response_buffer = malloc(128);
+      char *tracker;
+
+      strncpy(response_buffer, response_not_found, strlen(response_not_found));
+      tracker = response_buffer + strlen(response_not_found);
+
+      strncpy(tracker, type_txt, strlen(type_txt));
+      tracker = tracker + strlen(type_txt);
+
+      char line3[27];
+      sprintf(line3, "Content-Length: %d\r\n", 0);
+
+      strncpy(tracker, line3, strlen(line3));
+      tracker = tracker + strlen(line3);
+
+      strncpy(tracker, closing, strlen(closing));
+      tracker = tracker + strlen(closing);
+
+      tracker[0] = 0;
+      send(new_sock, response_buffer, strlen(response_buffer), 0);
+
+    } 
+
+    //200 Reply
+    else {
+
       printf("Matched request for %s!\n\n", filename);
-    } else {
-      printf("404 requested page cannot be found\n\n");
+
+      FILE *f;
+      f = fopen(filelist[index]->d_name, "rb");
+      fseek(f, 0, SEEK_END);
+      long fsize = ftell(f);
+      rewind(f);
+
+      response_buffer = malloc(fsize + 128);
+      char *tracker;
+
+      strncpy(response_buffer, response_ok, strlen(response_ok));
+      tracker = response_buffer + strlen(response_ok);
+
+      strncpy(tracker, type_txt, strlen(type_txt));
+      tracker = tracker + strlen(type_txt);
+
+      char line3[27];
+      sprintf(line3, "Content-Length: %ld\r\n", fsize);
+
+      strncpy(tracker, line3, strlen(line3));
+      tracker = tracker + strlen(line3);
+
+      strncpy(tracker, closing, strlen(closing));
+      tracker = tracker + strlen(closing);
+
+      fread(tracker, fsize, 1, f);
+      fclose(f);
+      tracker[fsize] = 0;
+
+      write(new_sock, response_buffer, strlen(response_buffer));
+
     }
 
-    
+    //Remember to set them free
+    free(filename);
+    free(response_buffer);
+    close(new_sock);
   }
 }
 
