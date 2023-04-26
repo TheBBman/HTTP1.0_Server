@@ -150,6 +150,10 @@ int main(int argc, char *argv[])
       f = fopen(filelist[index]->d_name, "rb");
       fseek(f, 0, SEEK_END);
       long fsize = ftell(f);
+      if (fsize == -1) {
+        perror("File size determination error!!!");
+        exit(1);
+      }
       rewind(f);
 
       response_buffer = malloc(fsize + 128);
@@ -158,8 +162,8 @@ int main(int argc, char *argv[])
       strncpy(response_buffer, response_ok, strlen(response_ok));
       tracker = response_buffer + strlen(response_ok);
 
-      strncpy(tracker, type_txt, strlen(type_txt));
-      tracker = tracker + strlen(type_txt);
+      strncpy(tracker, type_jpeg, strlen(type_jpeg));
+      tracker = tracker + strlen(type_jpeg);
 
       char line3[27];
       sprintf(line3, "Content-Length: %ld\r\n", fsize);
@@ -174,8 +178,9 @@ int main(int argc, char *argv[])
       fclose(f);
       tracker[fsize] = 0;
 
-      write(new_sock, response_buffer, strlen(response_buffer));
-
+      write(new_sock, response_buffer, fsize);
+      printf("%ld ", strlen(response_buffer));
+      printf("%ld\n\n", fsize);
     }
 
     //Remember to set them free
@@ -185,20 +190,3 @@ int main(int argc, char *argv[])
   }
 }
 
-// char *msg = "Fuck you bitch";
-// int bytes_sent = send(new_sock, msg, strlen(msg), 0);
-// printf("%d bytes sent!\n", bytes_sent);
-
-// int filter(const struct dirent *entry) {
-//   const char *filename = entry->d_name;
-//   const char *pattern = ".(\\.html | \\.htm | \\.txt | \\.jpg | \\.jpeg | \\.png)";
-//   regex_t regex;
-//   if (regcomp(&regex, pattern, REG_EXTENDED | REG_ICASE | REG_NOSUB) != 0) {
-//     perror("Regex compilation failed");
-//     exit(1);
-//   }
-//   if (regexec(&regex, filename, 0, NULL, 0) == 0) {
-//     return 1;
-//   }
-//   return 0;
-// }
