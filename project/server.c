@@ -189,16 +189,13 @@ int main(int argc, char *argv[])
       while(total_transmitted < fsize) {
         total_transmitted += write(new_sock, file_buffer, fsize);
       }
-
-      // printf("%ld ", total_transmitted);
-      // printf("%ld\n\n", fsize);
+  
     }
 
     //Remember to set them free
     free(filename);
     free(header_buffer);
     free(file_buffer);
-    close(new_sock);
   }
 }
 
