@@ -24,6 +24,25 @@ char* parse_request(const char* request) {
   return path;
 }
 
+int get_extension(const char* path) {
+  const char *extension = strchr(path, '.');
+  if (extension == NULL) {
+    return 0;
+  }
+
+  if ( (strcmp(extension, ".html") == 0) || (strcmp(extension, ".htm") == 0) ) {
+    return 1;
+  } else if ( (strcmp(extension, ".txt") == 0) ) {
+    return 2;
+  } else if ( (strcmp(extension, ".jpg") == 0) || (strcmp(extension, ".jpeg") == 0) ) {
+    return 3;
+  } else if ( (strcmp(extension, ".png") == 0) ) {
+    return 4;
+  } else {
+    return 0;
+  }
+}
+
 // Return a lower case version of given string
 char* lowercase_string(const char* str) {
   char *result = malloc(strlen(str) + 1);
@@ -111,7 +130,7 @@ int main(int argc, char *argv[])
 
     int index = check_request(n, filelist, filename);
 
-    char *header_buffer;
+    //char *header_buffer;
     char *file_buffer;
 
     //404 Reply
@@ -119,26 +138,11 @@ int main(int argc, char *argv[])
 
       printf("Failed to match request for %s\n\n", filename);
 
-      header_buffer = malloc(128);
-      char *tracker;
+      write(new_sock, response_not_found, strlen(response_not_found));
 
-      strncpy(header_buffer, response_not_found, strlen(response_not_found));
-      tracker = header_buffer + strlen(response_not_found);
+      write(new_sock, type_html, strlen(type_html));
 
-      strncpy(tracker, type_txt, strlen(type_txt));
-      tracker += strlen(type_txt);
-
-      char line3[27];
-      sprintf(line3, "Content-Length: %d\r\n", 0);
-
-      strncpy(tracker, line3, strlen(line3));
-      tracker += strlen(line3);
-
-      strncpy(tracker, closing, strlen(closing));
-      tracker += strlen(closing);
-
-      tracker[0] = 0;
-      write(new_sock, header_buffer, strlen(header_buffer));
+      index = check_request(n, filelist, "404notfound.html");
 
     } 
 
@@ -147,54 +151,60 @@ int main(int argc, char *argv[])
 
       printf("Matched request for %s!\n\n", filename);
 
+      write(new_sock, response_ok, strlen(response_ok));
 
-      FILE *f;
-      f = fopen(filelist[index]->d_name, "rb");
-      fseek(f, 0, SEEK_END);
-      long fsize = ftell(f);
-      if (fsize == -1) {
-        perror("File size determination error!!!");
-        exit(1);
+      char* type;
+      switch(get_extension(filename)) {
+        case 0: 
+          type = type_binary;
+          break;
+        case 1:
+          type = type_html;
+          break;
+        case 2:
+          type = type_txt;
+          break;
+        case 3:
+          type = type_jpeg;
+          break;
+        case 4:
+          type = type_png;
+          break;
+        default: 
+          type = type_binary;
+          break;
       }
-      rewind(f);
-
-
-      header_buffer = malloc(128);
-      char *tracker;
-
-      strncpy(header_buffer, response_ok, strlen(response_ok));
-      tracker = header_buffer + strlen(response_ok);
-
-      strncpy(tracker, type_jpeg, strlen(type_jpeg));
-      tracker += strlen(type_jpeg);
-
-      char line3[27];
-      sprintf(line3, "Content-Length: %ld\r\n", fsize);
-
-      strncpy(tracker, line3, strlen(line3));
-      tracker += strlen(line3);
-
-      strncpy(tracker, closing, strlen(closing));
-      tracker += strlen(closing);
-
-      write(new_sock, header_buffer, (tracker - header_buffer));
-
-
-      file_buffer = malloc(fsize);
-
-      fread(file_buffer, fsize, 1, f);
-      fclose(f);
-
-      long total_transmitted = 0;
-      while(total_transmitted < fsize) {
-        total_transmitted += write(new_sock, file_buffer, fsize);
-      }
-  
+      write(new_sock, type, strlen(type));
+      printf("%s\n", type);
     }
+
+    FILE *f;
+    f = fopen(filelist[index]->d_name, "rb");
+    fseek(f, 0, SEEK_END);
+    long fsize = ftell(f);
+    rewind(f);
+
+    char line3[27];
+    sprintf(line3, "Content-Length: %ld\r\n", fsize);
+
+    write(new_sock, line3, strlen(line3));
+
+    write(new_sock, closing, strlen(closing));
+
+    file_buffer = malloc(fsize);
+
+    fread(file_buffer, fsize, 1, f);
+    fclose(f);
+
+    write(new_sock, file_buffer, fsize);
+
+    // long total_transmitted = 0;
+    // while(total_transmitted < fsize) {
+    //   total_transmitted += write((new_sock + total_transmitted), file_buffer, fsize);
+    // }
 
     //Remember to set them free
     free(filename);
-    free(header_buffer);
     free(file_buffer);
   }
 }
