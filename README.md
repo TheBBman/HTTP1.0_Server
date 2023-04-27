@@ -34,8 +34,24 @@ docker compose down -v --rmi all --remove-orphans
 
 ## TODO
 
-    ###########################################################
-    ##                                                       ##
-    ## REPLACE CONTENT OF THIS FILE WITH YOUR PROJECT REPORT ##
-    ##                                                       ##
-    ###########################################################
+Name: Justin Hu
+UID: 205-514-102
+
+High level Design:
+
+The main function of my server has 2 simple parts, setup and loop. In the setup area, I create and bind
+the socket to be used (port 8080), create a list of all available files under current directory, and 
+setup some premade strings to be used in generating HTTP responses. In the loop area, I accept a single
+new connection, 
+
+Major Problems:
+
+Code References:
+
+https://beej.us/guide/bgnet/ 
+Beej's guide got me started, learning all about the socket API and how to do the project basically.
+
+https://stackoverflow.com/questions/779875/what-function-is-to-replace-a-substring-from-a-string-in-c
+As I am not a proficient programmer doing string replacement gave me a ton of issues (segfault), and the 
+example provided in this forum really helped me a lot, in particular the idea of using multiple string 
+(char *) pointers to keep track of my position while processing the string.

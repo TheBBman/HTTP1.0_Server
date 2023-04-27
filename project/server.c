@@ -191,7 +191,6 @@ int main(int argc, char *argv[])
 
     int index = check_request(n, filelist, filename);
 
-    //char *header_buffer;
     char *file_buffer;
 
     //404 Reply
@@ -256,12 +255,10 @@ int main(int argc, char *argv[])
     fread(file_buffer, fsize, 1, f);
     fclose(f);
 
-    write(new_sock, file_buffer, fsize);
-
-    // long total_transmitted = 0;
-    // while(total_transmitted < fsize) {
-    //   total_transmitted += write((new_sock + total_transmitted), file_buffer, fsize);
-    // }
+    long total_transmitted = 0;
+    while(total_transmitted < fsize) {
+      total_transmitted += write((new_sock + total_transmitted), file_buffer, fsize);
+    }
 
     //Remember to set them free
     free(filename);
