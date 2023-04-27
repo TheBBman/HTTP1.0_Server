@@ -169,6 +169,7 @@ int main(int argc, char *argv[])
 
   char* closing = "Connection: close\r\n\r\n";
 
+  printf("Setup complete!\n\n");
   while(1) {
 
     struct sockaddr_storage client_addr;
@@ -179,6 +180,8 @@ int main(int argc, char *argv[])
     if (new_sock == -1) {
       continue;
     }
+
+    printf("Listening!\n\n");
 
     char buf[128];
     recv(new_sock, buf, sizeof(buf), 0);
@@ -253,12 +256,12 @@ int main(int argc, char *argv[])
     fread(file_buffer, fsize, 1, f);
     fclose(f);
 
-    //write(new_sock, file_buffer, fsize);
+    write(new_sock, file_buffer, fsize);
 
-    long total_transmitted = 0;
-    while(total_transmitted < fsize) {
-      total_transmitted += write((new_sock + total_transmitted), file_buffer, fsize);
-    }
+    // long total_transmitted = 0;
+    // while(total_transmitted < fsize) {
+    //   total_transmitted += write((new_sock + total_transmitted), file_buffer, fsize);
+    // }
 
     //Remember to set them free
     free(filename);
