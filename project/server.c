@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
   char* response_not_found = "HTTP/1.0 404 Not Found\r\n";
 
   char* type_html = "Content-Type: text/html\r\n";
-  char* type_txt = "Contet-Type: text/plain\r\n";
+  char* type_txt = "Content-Type: text/plain\r\n";
   char* type_jpeg = "Content-Type: image/jpeg\r\n";
   char* type_png = "Content-Type: image/png\r\n";
   char* type_binary = "Content-Type: application/octet-stream\r\n";
