@@ -200,10 +200,11 @@ int main(int argc, char *argv[])
 
       write(new_sock, response_not_found, strlen(response_not_found));
 
-      write(new_sock, type_html, strlen(type_html));
+      //write(new_sock, type_html, strlen(type_html));
 
-      index = check_request(n, filelist, "404notfound.html");
-
+      //index = check_request(n, filelist, "404notfound.html");
+      free(filename);
+      continue;
     } 
 
     //200 Reply
@@ -264,5 +265,7 @@ int main(int argc, char *argv[])
     free(filename);
     free(file_buffer);
   } 
+
+
 }
 
