@@ -24,11 +24,27 @@ char* parse_request(const char* request) {
   return path;
 }
 
+int get_extension(const char* path) {
+  const char *extension = strchr(path, '.');
+  if (extension == NULL) {
+    return 0;
+  }
+
+  if ( (strcmp(extension, ".html") == 0) || (strcmp(extension, ".htm") == 0) ) {
+    return 1;
+  } else if ( (strcmp(extension, ".txt") == 0) ) {
+    return 2;
+  } else if ( (strcmp(extension, ".jpg") == 0) || (strcmp(extension, ".jpeg") == 0) ) {
+    return 3;
+  } else if ( (strcmp(extension, ".png") == 0) ) {
+    return 4;
+  } else {
+    return 0;
+  }
+}
+
 // Return a lower case version of given string
 char* lowercase_string(const char* str) {
-  if (str == NULL) {
-    return NULL;
-  }
   char *result = malloc(strlen(str) + 1);
   for (int i = 0; i < strlen(str); i++) {
     result[i] = tolower(str[i]);
@@ -38,43 +54,16 @@ char* lowercase_string(const char* str) {
   return result;
 }
 
-int get_extension(const char* path) {
-  char *extension = lowercase_string(strchr(path, '.'));
-  if (extension == NULL) {
-    return 0;
-  }
-
-  if ( (strcmp(extension, ".html") == 0) || (strcmp(extension, ".htm") == 0) ) {
-    free(extension);
-    return 1;
-  } else if ( (strcmp(extension, ".txt") == 0) ) {
-    free(extension);
-    return 2;
-  } else if ( (strcmp(extension, ".jpg") == 0) || (strcmp(extension, ".jpeg") == 0) ) {
-    free(extension);
-    return 3;
-  } else if ( (strcmp(extension, ".png") == 0) ) {
-    free(extension);
-    return 4;
-  } else {
-    free(extension);
-    return 0;
-  }
-}
-
 // Check if requested pathname is in current directory
 int check_request(int n, struct dirent **filelist, char* request) {
-  char* request_lower = lowercase_string(request);
   for (int i = 0; i < n; i++) {
     char* name_lower = lowercase_string(filelist[i]->d_name);
-    if (strcmp(request_lower, name_lower) == 0) {
+    if (strcmp(request, name_lower) == 0) {
       free(name_lower);
-      free(request_lower);
       return i;
     }
     free(name_lower);
   }
-  free(request_lower);
   return -1;
 }
 
@@ -133,7 +122,7 @@ int main(int argc, char *argv[])
     char buf[128];
     recv(new_sock, buf, sizeof(buf), 0);
 
-    char *filename = parse_request(buf);
+    char *filename = lowercase_string(parse_request(buf));
     printf("Received request for %s\n\n", filename);
 
     int index = check_request(n, filelist, filename);
