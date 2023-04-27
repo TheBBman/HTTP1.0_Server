@@ -24,27 +24,11 @@ char* parse_request(const char* request) {
   return path;
 }
 
-int get_extension(const char* path) {
-  const char *extension = strchr(path, '.');
-  if (extension == NULL) {
-    return 0;
-  }
-
-  if ( (strcmp(extension, ".html") == 0) || (strcmp(extension, ".htm") == 0) ) {
-    return 1;
-  } else if ( (strcmp(extension, ".txt") == 0) ) {
-    return 2;
-  } else if ( (strcmp(extension, ".jpg") == 0) || (strcmp(extension, ".jpeg") == 0) ) {
-    return 3;
-  } else if ( (strcmp(extension, ".png") == 0) ) {
-    return 4;
-  } else {
-    return 0;
-  }
-}
-
 // Return a lower case version of given string
 char* lowercase_string(const char* str) {
+  if (str == NULL) {
+    return NULL;
+  }
   char *result = malloc(strlen(str) + 1);
   for (int i = 0; i < strlen(str); i++) {
     result[i] = tolower(str[i]);
@@ -52,6 +36,30 @@ char* lowercase_string(const char* str) {
   result[strlen(str)] = 0;
 
   return result;
+}
+
+int get_extension(const char* path) {
+  char *extension = lowercase_string(strchr(path, '.'));
+  if (extension == NULL) {
+    return 0;
+  }
+
+  if ( (strcmp(extension, ".html") == 0) || (strcmp(extension, ".htm") == 0) ) {
+    free(extension);
+    return 1;
+  } else if ( (strcmp(extension, ".txt") == 0) ) {
+    free(extension);
+    return 2;
+  } else if ( (strcmp(extension, ".jpg") == 0) || (strcmp(extension, ".jpeg") == 0) ) {
+    free(extension);
+    return 3;
+  } else if ( (strcmp(extension, ".png") == 0) ) {
+    free(extension);
+    return 4;
+  } else {
+    free(extension);
+    return 0;
+  }
 }
 
 // Check if requested pathname is in current directory
