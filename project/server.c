@@ -11,6 +11,63 @@
 #include <errno.h>
 #include <dirent.h>
 
+// Deal with % and spaces, this took way longer than I expected
+char* process_string(char* string, int mode) {
+
+    char *result;
+    char *insert;
+    char *temp;
+    char *replace;
+    char *with;
+    char *string2 = string;
+    int count = 0;
+
+    // 0 means replace %, 1 means replace empty space
+    switch(mode) {
+        case 0:
+            replace = "%25";
+            with = "%";
+            break;
+        case 1:
+            replace = "%20";
+            with = " ";
+            break;
+        default:
+    }
+
+    // Count substrings # to be replaced
+    insert = string;
+    for (count; temp = strstr(insert, replace); count++) {
+        insert = temp + 3;
+    }
+
+    // If nothing needs to be replaced, return original string
+    if (!count) {
+        return string;
+    }
+
+    // Allocate new string buffer
+    temp = result = malloc(strlen(string) - 2*count + 1);
+
+    // While still substrings to be replaced
+    while (count--) {
+
+        // Find insert point
+        insert = strstr(string, replace);
+        // Find distance from start or previous replacement
+        int jump = insert - string;
+        // Copy over non-replacement part
+        temp = strncpy(temp, string, jump) + jump;
+        // Replace 
+        temp = strcpy(temp, with) + 1;
+        // Update replacement point
+        string += jump + 3;
+    }
+    strcpy(temp, string);
+    free(string2);
+    return result;
+}
+
 // Extract only the requested pathname from HTTP GET
 char* parse_request(const char* request) {
   const char *path_start = strchr(request, ' ') + 2;
@@ -21,9 +78,12 @@ char* parse_request(const char* request) {
   char *path = malloc(path_size + 1);
   strncpy(path, path_start, path_size);
   path[path_size] = 0;
+  path = process_string(path, 0);
+  path = process_string(path, 1);
   return path;
 }
 
+// Return int identifier for switch case based on fle extension
 int get_extension(const char* path) {
   const char *extension = strchr(path, '.');
   if (extension == NULL) {
@@ -69,12 +129,13 @@ int check_request(int n, struct dirent **filelist, char* request) {
 
 int main(int argc, char *argv[])
 {
+
   //Create socket
   int my_sock = socket(PF_INET, SOCK_STREAM, 0);
-  // if (my_sock == -1) {
-  //   perror("Socket initialization Failed");
-  //   exit(-1);
-  // }
+  if (my_sock == -1) {
+    perror("Socket initialization Failed");
+    exit(-1);
+  }
 
   //Option to prevent zombie sockets (address in use) after ^C
   int optval = 1;                                         
@@ -172,7 +233,6 @@ int main(int argc, char *argv[])
           break;
       }
       write(new_sock, type, strlen(type));
-      printf("%s\n", type);
     }
 
     FILE *f;
@@ -203,6 +263,6 @@ int main(int argc, char *argv[])
     //Remember to set them free
     free(filename);
     free(file_buffer);
-  }
+  } 
 }
 
