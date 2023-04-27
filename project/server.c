@@ -71,10 +71,10 @@ int main(int argc, char *argv[])
 {
   //Create socket
   int my_sock = socket(PF_INET, SOCK_STREAM, 0);
-  if (my_sock == -1) {
-    perror("Socket initialization Failed");
-    exit(-1);
-  }
+  // if (my_sock == -1) {
+  //   perror("Socket initialization Failed");
+  //   exit(-1);
+  // }
 
   //Option to prevent zombie sockets (address in use) after ^C
   int optval = 1;                                         
