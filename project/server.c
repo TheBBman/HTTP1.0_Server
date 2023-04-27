@@ -200,13 +200,18 @@ int main(int argc, char *argv[])
 
       write(new_sock, response_not_found, strlen(response_not_found));
 
-      //write(new_sock, type_html, strlen(type_html));
+      write(new_sock, type_html, strlen(type_html));
+
+      char line3[27];
+      sprintf(line3, "Content-Length: %ld\r\n", 0);
+
+      write(new_sock, line3, strlen(line3));
+
+      write(new_sock, closing, strlen(closing));
 
       //index = check_request(n, filelist, "404notfound.html");
       free(filename);
-      continue;
     } 
-
     //200 Reply
     else {
 
@@ -236,34 +241,36 @@ int main(int argc, char *argv[])
           break;
       }
       write(new_sock, type, strlen(type));
+
+      FILE *f;
+      f = fopen(filelist[index]->d_name, "rb");
+      fseek(f, 0, SEEK_END);
+      long fsize = ftell(f);
+      rewind(f);
+
+      char line3[27];
+      sprintf(line3, "Content-Length: %ld\r\n", fsize);
+
+      write(new_sock, line3, strlen(line3));
+
+      write(new_sock, closing, strlen(closing));
+
+      file_buffer = malloc(fsize);
+
+      fread(file_buffer, fsize, 1, f);
+      fclose(f);
+
+      long total_transmitted = 0;
+      while(total_transmitted < fsize) {
+        total_transmitted += write((new_sock + total_transmitted), file_buffer, fsize);
+      }
+
+      //Remember to set them free
+      free(filename);
+      free(file_buffer);
     }
 
-    FILE *f;
-    f = fopen(filelist[index]->d_name, "rb");
-    fseek(f, 0, SEEK_END);
-    long fsize = ftell(f);
-    rewind(f);
-
-    char line3[27];
-    sprintf(line3, "Content-Length: %ld\r\n", fsize);
-
-    write(new_sock, line3, strlen(line3));
-
-    write(new_sock, closing, strlen(closing));
-
-    file_buffer = malloc(fsize);
-
-    fread(file_buffer, fsize, 1, f);
-    fclose(f);
-
-    long total_transmitted = 0;
-    while(total_transmitted < fsize) {
-      total_transmitted += write((new_sock + total_transmitted), file_buffer, fsize);
-    }
-
-    //Remember to set them free
-    free(filename);
-    free(file_buffer);
+    
   } 
 
 
