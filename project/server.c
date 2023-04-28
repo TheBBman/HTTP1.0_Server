@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
       write(new_sock, type_html, strlen(type_html));
 
       char line3[27];
-      sprintf(line3, "Content-Length: %ld\r\n", 0);
+      sprintf(line3, "Content-Length: %d\r\n", 0);
 
       write(new_sock, line3, strlen(line3));
 
@@ -260,19 +260,12 @@ int main(int argc, char *argv[])
       fread(file_buffer, fsize, 1, f);
       fclose(f);
 
-      long total_transmitted = 0;
-      while(total_transmitted < fsize) {
-        total_transmitted += write((new_sock + total_transmitted), file_buffer, fsize);
-      }
+      write(new_sock, file_buffer, fsize);
 
       //Remember to set them free
       free(filename);
       free(file_buffer);
     }
-
-    
   } 
-
-
 }
 
